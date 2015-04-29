@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.getbase.floatingactionbutton.AddFloatingActionButton;
 import com.mikepenz.iconics.typeface.FontAwesome;
@@ -207,6 +208,9 @@ public class EmergencyContact extends ActionBarActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        }
+        else if (id==R.id.action_add){
+            Toast.makeText(getBaseContext(),"Added", Toast.LENGTH_LONG).show();
         }
 
         return super.onOptionsItemSelected(item);

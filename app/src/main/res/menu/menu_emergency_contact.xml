@@ -4,4 +4,9 @@
     tools:context="com.yusufboss.myapplication.EmergencyContact">
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
         android:orderInCategory="100" app:showAsAction="never" />
+
+    <item android:id="@+id/action_add" android:icon="@drawable/ic_action_content_add"
+        android:orderInCategory="1" app:showAsAction="ifRoom"
+        android:title="Add" />
+
 </menu>
