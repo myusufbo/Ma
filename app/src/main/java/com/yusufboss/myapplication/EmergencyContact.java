@@ -1,16 +1,23 @@
 package com.yusufboss.myapplication;
 
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.database.Cursor;
+import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
+import com.getbase.floatingactionbutton.AddFloatingActionButton;
 import com.mikepenz.iconics.typeface.FontAwesome;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.accountswitcher.AccountHeader;
@@ -18,10 +25,14 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.Nameable;
 
+import java.util.HashSet;
+
 
 public class EmergencyContact extends ActionBarActivity {
     Drawer.Result result;
     AccountHeader.Result headerResult;
+    AddFloatingActionButton addFloatingActionButton;
+    ListView listView;
 
     @Override
     protected void onPause() {
@@ -34,6 +45,57 @@ public class EmergencyContact extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_emergency_contact);
         initDrawer(savedInstanceState);
+
+        addFloatingActionButton=(AddFloatingActionButton)findViewById(R.id.semi_transparent);
+
+        addFloatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast.makeText(getBaseContext(),"Added",Toast.LENGTH_LONG).show();
+                readContacts();
+//                listView=(ListView)findViewById(R.id.list);
+
+//                String[] phone= new String[]{};
+//                ArrayAdapter<String> adapter= new ArrayAdapter<String>(getBaseContext(),R.layout.fragment_contact,R.id.namePhone);
+
+//                listView.setAdapter(adapter);
+
+            }
+        });
+    }
+
+    public void readContacts() {
+        ContentResolver cr = getContentResolver();
+        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
+                null, null, null, null);
+
+        if (cur.getCount() > 0) {
+            while (cur.moveToNext()) {
+                String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
+                String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                if (Integer.parseInt(cur.getString(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
+//                    Log.e("Friends" , name + " " + id);
+                    // get the phone number
+                    Cursor pCur = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+                            new String[]{id}, null);
+                    while (pCur.moveToNext()) {
+                        String phone = pCur.getString(
+                                pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        phone = phone.replace("-", "");
+                        phone = phone.replace(" ", "");
+                        phone = phone.replace("+88", "");
+//                        phones.add(phone);  //mine
+//                       names.add(name);
+
+//                        contact = new Contact(name,phone);  //mine
+//                        contacts.add(contact);  //mine
+                        Log.e("phone&Name", name + " " + phone);
+                    }
+                    pCur.close();
+                }
+            }
+        }
     }
 
     private void initDrawer(Bundle savedInstanceState) {
