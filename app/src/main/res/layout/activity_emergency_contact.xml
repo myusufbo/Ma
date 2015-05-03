@@ -13,6 +13,7 @@
         android:elevation="10dp"
 
         />
+   <!--
     <com.getbase.floatingactionbutton.AddFloatingActionButton
         android:id="@+id/semi_transparent"
         android:layout_width="wrap_content"
@@ -23,10 +24,20 @@
         fab:fab_colorNormal="@color/accent"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="16dp"/>
+    -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="No Contacts Here"
+        android:gravity="center"
+        android:textColor="@color/greenDark"
+        android:textSize="25sp"
+        android:textStyle="italic"/>
 
     <ListView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/list"
         ></ListView>
+
 </RelativeLayout>

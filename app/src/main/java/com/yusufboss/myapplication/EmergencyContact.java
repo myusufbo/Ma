@@ -1,6 +1,9 @@
 package com.yusufboss.myapplication;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.provider.ContactsContract;
@@ -26,14 +29,22 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.Nameable;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 
 public class EmergencyContact extends ActionBarActivity {
     Drawer.Result result;
     AccountHeader.Result headerResult;
-    AddFloatingActionButton addFloatingActionButton;
-    ListView listView;
+    ArrayList<String> phones= new ArrayList<String>();
+    ArrayList<CharSequence> names= new ArrayList<>();
+    ArrayList<CharSequence> contacts= new ArrayList<>();
+    String contact;
+//    private HashSet<String> phones;
+    //AddFloatingActionButton addFloatingActionButton;
+    //ListView listView;
 
     @Override
     protected void onPause() {
@@ -47,28 +58,14 @@ public class EmergencyContact extends ActionBarActivity {
         setContentView(R.layout.activity_emergency_contact);
         initDrawer(savedInstanceState);
 
-        addFloatingActionButton=(AddFloatingActionButton)findViewById(R.id.semi_transparent);
 
-        addFloatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Toast.makeText(getBaseContext(),"Added",Toast.LENGTH_LONG).show();
-                readContacts();
-//                listView=(ListView)findViewById(R.id.list);
-
-//                String[] phone= new String[]{};
-//                ArrayAdapter<String> adapter= new ArrayAdapter<String>(getBaseContext(),R.layout.fragment_contact,R.id.namePhone);
-
-//                listView.setAdapter(adapter);
-
-            }
-        });
     }
-
+//    List<String> mItems = new ArrayList<String>();
     public void readContacts() {
         ContentResolver cr = getContentResolver();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
                 null, null, null, null);
+
 
         if (cur.getCount() > 0) {
             while (cur.moveToNext()) {
@@ -86,14 +83,20 @@ public class EmergencyContact extends ActionBarActivity {
                         phone = phone.replace("-", "");
                         phone = phone.replace(" ", "");
                         phone = phone.replace("+88", "");
-//                        phones.add(phone);  //mine
-//                       names.add(name);
 
-//                        contact = new Contact(name,phone);  //mine
-//                        contacts.add(contact);  //mine
-                        Log.e("phone&Name", name + " " + phone);
+                       phones.add(phone);
+                         //mine
+                       names.add(name);
+                      // mItems.add(phone);
+                       // contact = new Contact(name,phone);  //mine
+                        //contacts.add(contact);  //mine
+                        //Log.e("phone&Name", name + " " + phone);
+//                        Toast.makeText(this,phone,Toast.LENGTH_LONG).show();
                     }
                     pCur.close();
+//                    int m;
+//                    m=phones.size();
+//                    Log.e("ksj",m+"");
                 }
             }
         }
@@ -210,9 +213,79 @@ public class EmergencyContact extends ActionBarActivity {
             return true;
         }
         else if (id==R.id.action_add){
-            Toast.makeText(getBaseContext(),"Added", Toast.LENGTH_LONG).show();
+            readContacts();
+
+
+            showMultiChoiceListAlertDialog();
+            //Toast.makeText(getBaseContext(),"Added", Toast.LENGTH_LONG).show();
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+    private AlertDialog.Builder createAlertDialogBuilder() {
+//        if (mTheme == NATIVE_THEME) {
+        return new AlertDialog.Builder(EmergencyContact.this);
+//        }
+
+//        return new AlertDialogPro.Builder(this, mTheme);
+    }
+    final  ArrayList<CharSequence> mCheckedItems = new ArrayList();
+    private void showMultiChoiceListAlertDialog() {
+        final String[] list= new String[]{"a","b","c"};
+        final CharSequence[] cs= names.toArray(new CharSequence[names.size()]);
+
+//        List<String> mCheckedItems = new ArrayList<String>();
+
+//        for(int i=0;i<)
+
+
+        createAlertDialogBuilder()
+                .setTitle("Contacts")
+                .setMultiChoiceItems(cs,null,
+                        new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                if (isChecked) {
+                                    mCheckedItems.add(cs[which]);
+                                }
+                                else if(mCheckedItems.contains(which)){
+                                    //mCheckedItems.remove(phones[which]);
+                                    mCheckedItems.remove(Integer.valueOf(which));
+                                }
+
+                                 /*else {
+                                    mCheckedItems.remove(list[which]);
+                                }*/
+                                showToast(
+                                        cs[which] + " is "
+                                                + (isChecked ? "checked" : "unchecked" + ".")
+                                );
+                            }
+                        })
+                .setNeutralButton("More info", /*new ButtonClickedListener("More info")*/null)
+                .setNegativeButton("Cancel",null)
+                .setPositiveButton(
+                        "Choose",
+
+                        /*new ButtonClickedListener("Choose " + mCheckedItems.toString()*/null)
+
+                .show();
+                /*.setTitle("Contacts")
+                .setMessage("Hello World")
+                .setPositiveButton("Ok",null)
+                .setNegativeButton("Cancel",null)
+                .show();
+*/
+    }
+    private Toast mToast = null;
+
+    private void showToast(CharSequence toastText) {
+        if (mToast != null) {
+            mToast.cancel();
+        }
+        mToast = Toast.makeText(this, toastText, Toast.LENGTH_SHORT);
+        mToast.show();
+    }
+
 }
