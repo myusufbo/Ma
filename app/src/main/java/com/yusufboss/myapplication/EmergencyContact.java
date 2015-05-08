@@ -1,10 +1,11 @@
 package com.yusufboss.myapplication;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
+
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
+
 import android.database.Cursor;
 import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,9 +21,10 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.getbase.floatingactionbutton.AddFloatingActionButton;
+
 import com.mikepenz.iconics.typeface.FontAwesome;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.accountswitcher.AccountHeader;
@@ -29,38 +32,65 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.Nameable;
 
-import java.lang.reflect.Array;
+
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 
 
 public class EmergencyContact extends ActionBarActivity {
+    ListView lvContacts;
+    TextView tvNoContacts;
     Drawer.Result result;
     AccountHeader.Result headerResult;
-    ArrayList<String> phones= new ArrayList<String>();
-    ArrayList<CharSequence> names= new ArrayList<>();
-    ArrayList<CharSequence> contacts= new ArrayList<>();
-    String contact;
+    ArrayList<String> phones= new ArrayList<>();
+    ArrayList<String> names= new ArrayList<>();
+    ArrayList<Contact> contacts= new ArrayList<>();
+    ArrayList<String> emergencyContacts = new ArrayList<>();
+    ArrayList<String> sharedPreferences=new ArrayList<>();
+//    String contact;
+    Contact contact;
 //    private HashSet<String> phones;
     //AddFloatingActionButton addFloatingActionButton;
     //ListView listView;
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        finish();
-    }
+//    @Override
+//    protected void onPause() {
+//        //emergencyContacts=sharedPreferences;
+//        super.onPause();
+//        finish();
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_emergency_contact);
+//        sharedPreferences=emergencyContacts;
+        tvNoContacts=(TextView)findViewById(R.id.noContacts);
+        lvContacts=(ListView)findViewById(R.id.list);
+
+  //      sharedPreferences=emergencyContacts;
+        //Log.e("Numbeer",sharedPreferences.toString()+"ss");
+
+
         initDrawer(savedInstanceState);
+        //readContacts();
+        if(sharedPreferences==null){
+            tvNoContacts.setVisibility(View.VISIBLE);
+
+        }
+        else {
+//            tvNoContacts=(TextView)findViewById(R.id.noContacts);
+            ArrayAdapter<String> sharedAdapter;
+
+            sharedAdapter=new ArrayAdapter<>(EmergencyContact.this,android.R.layout.simple_list_item_1,sharedPreferences);
+
+            lvContacts.setAdapter(sharedAdapter);
+            tvNoContacts.setVisibility(View.INVISIBLE);
+        }
 
 
     }
-//    List<String> mItems = new ArrayList<String>();
+
+
     public void readContacts() {
         ContentResolver cr = getContentResolver();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
@@ -88,8 +118,8 @@ public class EmergencyContact extends ActionBarActivity {
                          //mine
                        names.add(name);
                       // mItems.add(phone);
-                       // contact = new Contact(name,phone);  //mine
-                        //contacts.add(contact);  //mine
+                       contact = new Contact(name,phone);  //mine
+                        contacts.add(contact);  //mine
                         //Log.e("phone&Name", name + " " + phone);
 //                        Toast.makeText(this,phone,Toast.LENGTH_LONG).show();
                     }
@@ -127,7 +157,7 @@ public class EmergencyContact extends ActionBarActivity {
                 .withActivity(this)
                 .withHeader(R.layout.header)
                 .withAccountHeader(headerResult)
-                .withToolbar(toolbar)
+                .withToolbar(toolbar).withDisplayBelowToolbar(true)
                         //.withTranslucentStatusBar(false)
                         //.withActionBarDrawerToggle(false)
                 .addDrawerItems(
@@ -168,7 +198,7 @@ public class EmergencyContact extends ActionBarActivity {
                             } else if (drawerItem.getIdentifier() == 4) {
                                 startActivity(new Intent(EmergencyContact.this, Hospital.class));
                             } else if (drawerItem.getIdentifier() == 5) {
-                                //startActivity(new Intent(MainActivity.this, EmergencyContact.class));
+                                //startActivity(new Intent(EmergencyContact.this, EmergencyContact.class));
                             }
                             else if (drawerItem.getIdentifier() == 6) {
                                 startActivity(new Intent(EmergencyContact.this, Vaccination.class));
@@ -214,10 +244,10 @@ public class EmergencyContact extends ActionBarActivity {
         }
         else if (id==R.id.action_add){
             readContacts();
-
-
             showMultiChoiceListAlertDialog();
-            //Toast.makeText(getBaseContext(),"Added", Toast.LENGTH_LONG).show();
+
+
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -230,45 +260,51 @@ public class EmergencyContact extends ActionBarActivity {
 
 //        return new AlertDialogPro.Builder(this, mTheme);
     }
-    final  ArrayList<CharSequence> mCheckedItems = new ArrayList();
+
     private void showMultiChoiceListAlertDialog() {
-        final String[] list= new String[]{"a","b","c"};
-        final CharSequence[] cs= names.toArray(new CharSequence[names.size()]);
-
-//        List<String> mCheckedItems = new ArrayList<String>();
-
-//        for(int i=0;i<)
-
+//        final String[] list= new String[]{"A","B","C","d"};
+        final String[] cs= names.toArray(new String[names.size()]);
 
         createAlertDialogBuilder()
                 .setTitle("Contacts")
+
                 .setMultiChoiceItems(cs,null,
                         new DialogInterface.OnMultiChoiceClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                                 if (isChecked) {
-                                    mCheckedItems.add(cs[which]);
+                                    emergencyContacts.add(cs[which]);
+                                    sharedPreferences=emergencyContacts;
                                 }
-                                else if(mCheckedItems.contains(which)){
-                                    //mCheckedItems.remove(phones[which]);
-                                    mCheckedItems.remove(Integer.valueOf(which));
+                                else if(emergencyContacts.contains(which)){
+                                    emergencyContacts.remove(Integer.valueOf(which));
+                                    sharedPreferences=emergencyContacts;
                                 }
 
                                  /*else {
                                     mCheckedItems.remove(list[which]);
                                 }*/
-                                showToast(
-                                        cs[which] + " is "
-                                                + (isChecked ? "checked" : "unchecked" + ".")
-                                );
+//                                showToast(
+//                                        list[which] + " is "
+//                                                + (isChecked ? "checked" : "unchecked" + ".")
+//                                );
                             }
                         })
                 .setNeutralButton("More info", /*new ButtonClickedListener("More info")*/null)
-                .setNegativeButton("Cancel",null)
+                .setNegativeButton("Cancel", null)
                 .setPositiveButton(
                         "Choose",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ArrayAdapter<String> emergencyAdapter;
+                                emergencyAdapter=new ArrayAdapter<String>(EmergencyContact.this,android.R.layout.simple_list_item_1,emergencyContacts);
+                                lvContacts.setAdapter(emergencyAdapter);
+                                tvNoContacts.setVisibility(View.INVISIBLE);
 
-                        /*new ButtonClickedListener("Choose " + mCheckedItems.toString()*/null)
+                            }
+                        })
+
 
                 .show();
                 /*.setTitle("Contacts")
@@ -278,14 +314,69 @@ public class EmergencyContact extends ActionBarActivity {
                 .show();
 */
     }
+
+//    private void showMultiChoiceListAlertDialog() {
+//
+//        final String[] cs= names.toArray(new String[names.size()]);
+//
+//
+//        createAlertDialogBuilder()
+//                .setTitle("Contacts")
+//                .setMultiChoiceItems(cs,null,
+//                        new DialogInterface.OnMultiChoiceClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+//                                if (isChecked) {
+//                                    emergencyContacts.add(cs[which]);
+//                                }
+//                                else if(emergencyContacts.contains(which)){
+//                                    //mCheckedItems.remove(phones[which]);
+//                                    emergencyContacts.remove(Integer.valueOf(which));
+//                                }
+//                            }
+//
+//                        })
+//                .setNeutralButton("More info", /*new ButtonClickedListener("More info")*/null)
+//                .setNegativeButton("Cancel",null)
+//                .setPositiveButton("choose", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        lvContacts=(ListView)findViewById(R.id.list);
+//            //                    tvNoContacts=(TextView)findViewById(R.id.noContacts);
+//                                ArrayAdapter<String> adapter;
+//                                adapter=new ArrayAdapter<String>(EmergencyContact.this,android.R.layout.simple_list_item_1,emergencyContacts);
+//                                lvContacts.setAdapter(adapter);
+//                                //adapter.setNotifyOnChange(true);
+//                        tvNoContacts.setVisibility(View.INVISIBLE);
+//
+//                    }
+//                }).show();
+////                        "Choose",
+////
+////                        new DialogInterface.OnClickListener() {
+////                            @Override
+////                            public void onClick(DialogInterface dialog, int which) {
+//////                                lvContacts=(ListView)findViewById(R.id.list);
+////                                tvNoContacts=(TextView)findViewById(R.id.noContacts);
+////                                ArrayAdapter<CharSequence> adapter;
+////                                adapter=new ArrayAdapter<CharSequence>(EmergencyContact.this,android.R.layout.simple_list_item_1,emergencyContacts);
+////                                lvContacts.setAdapter(adapter);
+////                                //adapter.setNotifyOnChange(true);
+//                        //tvNoContacts.setVisibility(View.INVISIBLE);
+////
+////    }
+////                        })
+////
+////                .show();
+////                /*.setTitle("Contacts")
+////                .setMessage("Hello World")
+////                .setPositiveButton("Ok",null)
+////                .setNegativeButton("Cancel",null)
+////                .show();
+////*/
+//        sharedPreferences=emergencyContacts;
+//    }
     private Toast mToast = null;
 
-    private void showToast(CharSequence toastText) {
-        if (mToast != null) {
-            mToast.cancel();
-        }
-        mToast = Toast.makeText(this, toastText, Toast.LENGTH_SHORT);
-        mToast.show();
-    }
 
 }
